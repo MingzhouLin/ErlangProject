@@ -1,0 +1,7 @@
+.DS_Store
+.idea/
+ErlangProject.iml
+calling.beam
+calls.txt
+exchange.beam
+out/
