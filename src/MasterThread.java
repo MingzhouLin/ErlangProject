@@ -1,28 +1,30 @@
-public class MasterThread extends Thread{
-    public static String[] introInfo = new String[4];
-    public static String[] replyInfo = new String[4];
+public class MasterThread extends Thread {
+    public FriendThread thread;
+    public Type type;
 
     public MasterThread() {
         super();
     }
 
     @Override
-    public void run(){
+    public void run() {
         while (true) {
             synchronized (this) {
-                if (introInfo[3] != exchange.introInfo[3]) {
-                    for (int i = 0; i < introInfo.length; i++) {
-                        introInfo[i] = exchange.introInfo[i];
+                try {
+                    this.wait();
+//                    System.out.println("start");
+                    if (exchange.MasterThreadsStart) {
+                        if (type.equals(Type.intro)) {
+                            System.out.println(thread.introInfo[0] + " received intro message from " + thread.introInfo[2] + "[" + thread.introInfo[3] + "]");
+                        }else if (type.equals(Type.reply)){
+                            System.out.println(thread.replyInfo[0] + " received reply message from " + thread.replyInfo[2] + "[" + thread.replyInfo[3] + "]");
+                        }
+                    } else {
+                        System.out.println("\nMaster has received no replies for 1.5 seconds, ending...");
+                        break;
                     }
-                    System.out.println(exchange.introInfo[0] + " received intro message from " + exchange.introInfo[2] + "[" + exchange.introInfo[3] + "]");
-                } else if (replyInfo[3] != exchange.replyInfo[3]) {
-                    for (int i = 0; i < replyInfo.length; i++) {
-                        replyInfo[i] = exchange.replyInfo[i];
-                    }
-                    System.out.println(exchange.replyInfo[0] + " received reply message from " + exchange.replyInfo[2] + "[" + exchange.replyInfo[3] + "]");
-                } else if (!exchange.MasterThreadsStart) {
-                    System.out.println("\nMaster has received no replies for 1.5 seconds, ending...");
-                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }

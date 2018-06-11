@@ -7,10 +7,8 @@ import java.util.regex.Pattern;
 public class exchange {
     public static boolean FriendsThreadsStart = true;
     public static boolean MasterThreadsStart = true;
-    //0:callee 1:type 2:caller 3:time
-    public static String[] introInfo = new String[4];
-    public static HashMap<String, Object> address = new HashMap<>();
-    public static String[] replyInfo = new String[4];
+    public static MasterThread master;
+    public static HashMap<String, FriendThread> address = new HashMap<>();
 
     public static void main(String[] args) {
         new exchange().run();
@@ -35,7 +33,7 @@ public class exchange {
         }
         //start master process
         Object masterlock = new Object();
-        MasterThread master = new MasterThread();
+        master = new MasterThread();
         master.start();
 //        address.put("master", masterlock);
 
@@ -43,27 +41,33 @@ public class exchange {
         for (String caller :
                 map.keySet()) {
             Object lock = new Object();
-            FriendThread thread = new FriendThread(lock, caller);
+            Object replyLocker=new Object();
+            FriendThread thread = new FriendThread(lock, caller,replyLocker);
             thread.start();
-            address.put(caller, lock);
+            address.put(caller, thread);
+        }
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         //send message
         for (Map.Entry<String, String[]> entry :
                 map.entrySet()) {
             try {
-                introInfo[2] = entry.getKey();
-                introInfo[1] = type.intro.toString();
-                for (String callee :
+                for (String s :
                         entry.getValue()) {
-                    introInfo[0] = callee;
-                    long millisecond = System.currentTimeMillis();
-                    exchange.introInfo[3] = String.valueOf(millisecond);
-                    synchronized (address.get(callee)) {
-                        address.get(callee).notify();
+                    FriendThread callee=address.get(s);
+                    synchronized (callee.lock) {
+                        long millisecond = System.currentTimeMillis();
+                        callee.introInfo[0]= s;
+                        callee.introInfo[1]=Type.intro.toString();
+                        callee.introInfo[2] = entry.getKey();
+                        callee.introInfo[3]= String.valueOf(millisecond);
+                        callee.lock.notify();
                     }
-                    int time = (int) (Math.random() * 100);
-                    Thread.sleep(time);
+                    Thread.sleep(100);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -76,13 +80,16 @@ public class exchange {
             FriendsThreadsStart = false;
             for (String caller :
                     map.keySet()) {
-                synchronized (address.get(caller)) {
-                    address.get(caller).notify();
+                synchronized (address.get(caller).lock) {
+                    address.get(caller).lock.notify();
                 }
             }
 
             Thread.sleep(500);
             MasterThreadsStart = false;
+            synchronized (master){
+                master.notify();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -120,7 +127,7 @@ public class exchange {
 
 }
 
-enum type {
+enum Type {
     intro, reply;
 }
 
