@@ -16,7 +16,7 @@ public class MasterThread extends Thread {
                     if (exchange.MasterThreadsStart) {
                         if (type.equals(Type.intro)) {
                             System.out.println(thread.introInfo[0] + " received intro message from " + thread.introInfo[2] + "[" + thread.introInfo[3] + "]");
-                        }else if (type.equals(Type.reply)){
+                        } else if (type.equals(Type.reply)) {
                             System.out.println(thread.replyInfo[0] + " received reply message from " + thread.replyInfo[2] + "[" + thread.replyInfo[3] + "]");
                         }
                     } else {

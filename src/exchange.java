@@ -31,6 +31,7 @@ public class exchange {
             builder.append("]");
             System.out.println(entry.getKey() + ": " + builder.toString());
         }
+        System.out.println();
         //start master process
         Object masterlock = new Object();
         master = new MasterThread();
@@ -41,8 +42,8 @@ public class exchange {
         for (String caller :
                 map.keySet()) {
             Object lock = new Object();
-            Object replyLocker=new Object();
-            FriendThread thread = new FriendThread(lock, caller,replyLocker);
+            Object replyLocker = new Object();
+            FriendThread thread = new FriendThread(lock, caller, replyLocker);
             thread.start();
             address.put(caller, thread);
         }
@@ -58,13 +59,14 @@ public class exchange {
             try {
                 for (String s :
                         entry.getValue()) {
-                    FriendThread callee=address.get(s);
+                    FriendThread callee = address.get(s);
                     synchronized (callee.lock) {
                         long millisecond = System.currentTimeMillis();
-                        callee.introInfo[0]= s;
-                        callee.introInfo[1]=Type.intro.toString();
+                        String milli = String.valueOf(millisecond);
+                        callee.introInfo[0] = s;
+                        callee.introInfo[1] = Type.intro.toString();
                         callee.introInfo[2] = entry.getKey();
-                        callee.introInfo[3]= String.valueOf(millisecond);
+                        callee.introInfo[3] = milli.substring(milli.length() - 6, milli.length());
                         callee.lock.notify();
                     }
                     Thread.sleep(100);
@@ -87,7 +89,7 @@ public class exchange {
 
             Thread.sleep(500);
             MasterThreadsStart = false;
-            synchronized (master){
+            synchronized (master) {
                 master.notify();
             }
         } catch (InterruptedException e) {

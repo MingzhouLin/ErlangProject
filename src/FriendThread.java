@@ -3,9 +3,9 @@ public class FriendThread extends Thread {
     public Object replylocker;
     String name = "";
     //0:callee 1:type 2:caller 3:time
-    public String[] introInfo = {"","","",""};
+    public String[] introInfo = {"", "", "", ""};
     private String introUpdatedTime = "";
-    public String[] replyInfo ={"","","",""};
+    public String[] replyInfo = {"", "", "", ""};
     private String replyUpdatedTime = "";
     private static final String master = "master";
 
@@ -39,7 +39,7 @@ public class FriendThread extends Thread {
                         }
                         if (!replyUpdatedTime.equals(replyInfo[3])) {
 //                            System.out.println(replyUpdatedTime+" "+replyInfo[3]);
-                            replyUpdatedTime=replyInfo[3];
+                            replyUpdatedTime = replyInfo[3];
                             synchronized (exchange.master) {
                                 exchange.master.thread = this;
                                 exchange.master.type = Type.reply;
@@ -50,20 +50,9 @@ public class FriendThread extends Thread {
                         System.out.println("\nProcess " + name + " has received no calls for 1 second, ending...");
                     }
                 }
-//                synchronized (replylocker){
-//                    replylocker.wait();
-//                    replyUpdatedTime=replyInfo[3];
-//                    synchronized (exchange.master){
-//                        exchange.master.thread=this;
-//                        exchange.master.type=Type.reply;
-//                        exchange.master.notify();
-//                    }
-//                }
 
             }
-        } catch (
-                InterruptedException e)
-
+        } catch (InterruptedException e)
         {
             e.printStackTrace();
         }
